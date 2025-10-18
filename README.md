@@ -71,8 +71,4 @@ frontend/
 └── package.json     # 프로젝트 의존성
 ```
 
-## API 프록시
 
-`vercel.json`에서 `/api/*` 요청을 백엔드 서버로 프록시합니다:
-- 개발: `http://localhost:8000`
-- 프로덕션: `https://inseek-agent-806288585757.asia-northeast3.run.app`
