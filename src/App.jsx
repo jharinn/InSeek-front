@@ -129,6 +129,25 @@ function App() {
     localStorage.setItem('inseek_history', JSON.stringify(newHistory));
   };
 
+  // 히스토리 삭제
+  const handleDeleteHistory = (index, e) => {
+    e.stopPropagation(); // 부모 버튼의 클릭 이벤트 방지
+    
+    const newHistory = history.filter((_, i) => i !== index);
+    saveHistory(newHistory);
+    
+    // 현재 선택된 항목이 삭제된 경우
+    if (selectedHistoryIndex === index) {
+      setSelectedHistoryIndex(null);
+      setCurrentAnswer('');
+      setCurrentSources([]);
+      setQuestion('');
+    } else if (selectedHistoryIndex !== null && selectedHistoryIndex > index) {
+      // 선택된 항목보다 앞의 항목이 삭제된 경우 인덱스 조정
+      setSelectedHistoryIndex(selectedHistoryIndex - 1);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -387,35 +406,50 @@ function App() {
               ) : (
                 <div className="space-y-2">
                   {history.map((item, index) => (
-                    <button
+                    <div
                       key={item.id}
-                      onClick={() => handleSelectHistory(index)}
-                      className={`w-full text-left p-3 rounded-xl transition-all duration-200 ${
-                        selectedHistoryIndex === index
-                          ? 'bg-primary-50 border border-primary-200 shadow-sm'
-                          : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
-                      }`}
+                      className="relative group"
                     >
-                      <p className="text-sm font-medium text-gray-800 mb-1.5 line-clamp-2 leading-snug">
-                        {item.question}
-                      </p>
-                      <p className="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">
-                        {getAnswerPreview(item.answer)}
-                      </p>
-                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <button
+                        onClick={() => handleSelectHistory(index)}
+                        className={`w-full text-left p-3 rounded-xl transition-all duration-200 ${
+                          selectedHistoryIndex === index
+                            ? 'bg-primary-50 border border-primary-200 shadow-sm'
+                            : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-gray-800 mb-1.5 line-clamp-2 leading-snug pr-6">
+                          {item.question}
+                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">
+                          {getAnswerPreview(item.answer)}
+                        </p>
+                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>
+                            {new Date(item.timestamp).toLocaleString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                      </button>
+                      
+                      {/* 삭제 버튼 - 호버 시 표시 */}
+                      <button
+                        onClick={(e) => handleDeleteHistory(index, e)}
+                        className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gray-400 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                        title="삭제"
+                      >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                        <span>
-                          {new Date(item.timestamp).toLocaleString('ko-KR', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
