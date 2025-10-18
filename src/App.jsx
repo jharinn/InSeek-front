@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+// 앱 시작 시 API URL 로깅
+console.log('=== INSEEK Frontend Configuration ===');
+console.log('API_URL:', API_URL);
+console.log('Environment:', import.meta.env.MODE);
+console.log('All env vars:', import.meta.env);
+console.log('=====================================');
+
 // 마크다운 텍스트를 파싱하는 유틸리티 함수
 const parseMarkdown = (text) => {
   if (!text) return [];
@@ -135,20 +142,36 @@ function App() {
     setCurrentSources([]);
     setSelectedHistoryIndex(null);
 
+    const requestUrl = `${API_URL}/api/ask`;
+    const requestBody = { question: question.trim() };
+
+    console.log('=== API Request ===');
+    console.log('URL:', requestUrl);
+    console.log('Question:', requestBody.question);
+    console.log('Timestamp:', new Date().toISOString());
+
     try {
-      const response = await fetch(`${API_URL}/api/ask`, {
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question: question.trim() }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('=== API Response ===');
+      console.log('Status:', response.status);
+      console.log('Status Text:', response.statusText);
+      console.log('Headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Error Response Body:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}\nResponse: ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Response Data:', data);
       
       if (data.success) {
         setCurrentAnswer(data.answer);
@@ -168,11 +191,35 @@ function App() {
         
         setQuestion('');
       } else {
-        setError(data.error_message || '응답을 처리하는 중 오류가 발생했습니다.');
+        const errorMsg = data.error_message || '응답을 처리하는 중 오류가 발생했습니다.';
+        console.error('API Error:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
-      console.error('Error:', err);
-      setError('서버와 통신하는 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('=== Request Failed ===');
+      console.error('Error Type:', err.name);
+      console.error('Error Message:', err.message);
+      console.error('Error Stack:', err.stack);
+      console.error('API URL:', requestUrl);
+      
+      let userMessage = '서버와 통신하는 중 오류가 발생했습니다.';
+      
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        userMessage += '\n\n네트워크 연결을 확인해주세요.';
+        console.error('Network error detected. Check if backend server is running and accessible.');
+      } else if (err.message.includes('CORS')) {
+        userMessage += '\n\nCORS 오류가 발생했습니다.';
+        console.error('CORS error. Check backend CORS configuration.');
+      } else if (err.message.includes('404')) {
+        userMessage += '\n\nAPI 엔드포인트를 찾을 수 없습니다.';
+        console.error('404 error. Check if the API endpoint exists.');
+      } else if (err.message.includes('500')) {
+        userMessage += '\n\n서버 내부 오류입니다.';
+        console.error('500 error. Check backend server logs.');
+      }
+      
+      userMessage += `\n\n상세 오류: ${err.message}`;
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
@@ -191,7 +238,7 @@ function App() {
     setSelectedHistoryIndex(index);
     setCurrentAnswer(item.answer);
     setCurrentSources(item.sources);
-    setQuestion('');
+    setQuestion(item.question); // 히스토리의 질문을 입력창에 표시
     setError('');
   };
 
@@ -205,20 +252,35 @@ function App() {
     setCurrentSources([]);
     setSelectedHistoryIndex(null);
 
+    const requestUrl = `${API_URL}/api/ask`;
+    const requestBody = { question: exampleQuestion };
+
+    console.log('=== API Request (Example) ===');
+    console.log('URL:', requestUrl);
+    console.log('Question:', requestBody.question);
+    console.log('Timestamp:', new Date().toISOString());
+
     try {
-      const response = await fetch(`${API_URL}/api/ask`, {
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question: exampleQuestion }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('=== API Response (Example) ===');
+      console.log('Status:', response.status);
+      console.log('Status Text:', response.statusText);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Error Response Body:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}\nResponse: ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Response Data:', data);
       
       if (data.success) {
         setCurrentAnswer(data.answer);
@@ -238,11 +300,27 @@ function App() {
         
         setQuestion('');
       } else {
-        setError(data.error_message || '응답을 처리하는 중 오류가 발생했습니다.');
+        const errorMsg = data.error_message || '응답을 처리하는 중 오류가 발생했습니다.';
+        console.error('API Error:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
-      console.error('Error:', err);
-      setError('서버와 통신하는 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('=== Request Failed (Example) ===');
+      console.error('Error Type:', err.name);
+      console.error('Error Message:', err.message);
+      console.error('Error Stack:', err.stack);
+      console.error('API URL:', requestUrl);
+      
+      let userMessage = '서버와 통신하는 중 오류가 발생했습니다.';
+      
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        userMessage += '\n\n네트워크 연결을 확인해주세요.';
+      } else if (err.message.includes('CORS')) {
+        userMessage += '\n\nCORS 오류가 발생했습니다.';
+      }
+      
+      userMessage += `\n\n상세 오류: ${err.message}`;
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
@@ -430,9 +508,12 @@ function App() {
                         <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-semibold text-red-800">오류가 발생했습니다</p>
-                          <p className="text-sm mt-1 text-red-600">{error}</p>
+                          <p className="text-sm mt-2 text-red-600 whitespace-pre-wrap">{error}</p>
+                          <p className="text-xs mt-3 text-red-500">
+                            💡 브라우저 콘솔(F12)에서 자세한 로그를 확인할 수 있습니다.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -498,7 +579,13 @@ function App() {
                       <h3 className="text-sm font-semibold text-gray-800 flex-1 leading-snug">
                         {source.law_title}
                       </h3>
-                      <span className="text-xs font-bold text-white bg-gradient-to-r from-primary-500 to-primary-600 px-2.5 py-1 rounded-lg whitespace-nowrap shadow-sm">
+                      <span className={`text-xs font-bold text-white px-2.5 py-1 rounded-lg whitespace-nowrap shadow-sm ${
+                        source.similarity_score >= 0.8
+                          ? 'bg-gradient-to-r from-green-500 to-green-600'
+                          : source.similarity_score >= 0.6
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                          : 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+                      }`}>
                         {(source.similarity_score * 100).toFixed(0)}%
                       </span>
                     </div>

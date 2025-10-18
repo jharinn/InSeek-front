@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSEEK 환경 변수 확인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            word-break: break-all;
+            font-size: 16px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .test-button:active {
+            transform: translateY(0);
+        }
+        
+        .test-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .test-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .test-result.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        
+        .test-result.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        
+        .home-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .home-link:hover {
+            color: #764ba2;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 INSEEK 환경 설정 확인</h1>
+        <p class="subtitle">프론트엔드 환경 변수 및 백엔드 연결 상태를 확인합니다.</p>
+        
+        <div class="info-box">
+            <div class="info-label">환경 모드</div>
+            <div class="info-value" id="mode">확인 중...</div>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-label">Backend API URL</div>
+            <div class="info-value" id="api-url">확인 중...</div>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-label">연결 상태</div>
+            <div>
+                <span class="status warning" id="status">확인 중</span>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <button class="test-button" onclick="testBackend()" id="test-btn">
+            🔄 백엔드 연결 테스트
+        </button>
+        
+        <div class="test-result" id="test-result"></div>
+        
+        <div class="info-box" style="margin-top: 30px;">
+            <div class="info-label">전체 환경 변수</div>
+            <pre id="all-env">확인 중...</pre>
+        </div>
+        
+        <a href="/" class="home-link">← 메인 페이지로 돌아가기</a>
+    </div>
+
+    <script>
+        // 페이지 로드 시 환경 변수 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const mode = import.meta.env.MODE;
+            
+            document.getElementById('mode').textContent = mode;
+            document.getElementById('api-url').textContent = apiUrl;
+            
+            // 환경 변수가 설정되어 있는지 확인
+            if (!import.meta.env.VITE_API_URL) {
+                document.getElementById('status').textContent = '⚠️ 환경 변수 미설정';
+                document.getElementById('status').className = 'status warning';
+            } else {
+                document.getElementById('status').textContent = '✅ 환경 변수 설정됨';
+                document.getElementById('status').className = 'status ok';
+            }
+            
+            // 모든 환경 변수 표시
+            const allEnv = JSON.stringify(import.meta.env, null, 2);
+            document.getElementById('all-env').textContent = allEnv;
+            
+            console.log('=== INSEEK Debug Page ===');
+            console.log('Mode:', mode);
+            console.log('API URL:', apiUrl);
+            console.log('All env:', import.meta.env);
+        });
+        
+        async function testBackend() {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const testBtn = document.getElementById('test-btn');
+            const resultDiv = document.getElementById('test-result');
+            
+            testBtn.disabled = true;
+            testBtn.textContent = '⏳ 테스트 중...';
+            resultDiv.style.display = 'none';
+            
+            try {
+                console.log('Testing backend connection to:', apiUrl);
+                
+                const response = await fetch(`${apiUrl}/api/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: '환경 설정 테스트'
+                    }),
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                resultDiv.className = 'test-result success';
+                resultDiv.innerHTML = `
+                    <strong>✅ 백엔드 연결 성공!</strong><br><br>
+                    <strong>응답 상태:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>응답 시간:</strong> ${new Date().toLocaleString('ko-KR')}<br><br>
+                    <strong>응답 데이터:</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                document.getElementById('status').textContent = '✅ 백엔드 연결 성공';
+                document.getElementById('status').className = 'status ok';
+                
+            } catch (error) {
+                console.error('Backend test failed:', error);
+                
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ 백엔드 연결 실패</strong><br><br>
+                    <strong>에러 타입:</strong> ${error.name}<br>
+                    <strong>에러 메시지:</strong> ${error.message}<br><br>
+                    <strong>확인사항:</strong><br>
+                    1. Backend 서버가 실행 중인지 확인<br>
+                    2. VITE_API_URL 환경 변수가 올바른지 확인<br>
+                    3. CORS 설정이 올바른지 확인<br>
+                    4. 네트워크 연결 상태 확인<br><br>
+                    <strong>자세한 내용은 브라우저 콘솔(F12)을 확인하세요.</strong>
+                `;
+                
+                document.getElementById('status').textContent = '❌ 백엔드 연결 실패';
+                document.getElementById('status').className = 'status error';
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '🔄 백엔드 연결 테스트';
+            }
+        }
+    </script>
+</body>
+</html>
