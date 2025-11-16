@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = "/proxy";
 
 // 앱 시작 시 API URL 로깅
 console.log('=== INSEEK Frontend Configuration ===');
