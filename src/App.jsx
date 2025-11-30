@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 // ===========================
 // Constants
 // ===========================
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://0.0.0.0:8000';
 const EXAMPLE_QUESTIONS = [
-  '반려동물 관련 지원을 받을 수 있나요?',
+  '반려동물 관련 지원을 받을 수 있나요?', 
   '평생교육 지원 대상자는?', 
   '한부모인데 아이돌봄 지원을 받을 수 있어?',
 ];
