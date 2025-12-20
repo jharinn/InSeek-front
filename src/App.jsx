@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
 // ===========================
-// Constants
+// Constants 
 // ===========================
 const API_URL = import.meta.env.VITE_API_URL || 'http://0.0.0.0:8000';
 const EXAMPLE_QUESTIONS = [
-  '반려동물 관련 지원을 받을 수 있나요?', 
-  '평생교육 지원 대상자는?', 
+  '반려동물 관련 지원을 받을 수 있나요?',
+  '평생교육 지원 대상자는?',
   '한부모인데 아이돌봄 지원을 받을 수 있어?',
 ];
 
@@ -156,14 +156,6 @@ const Header = ({ isStreaming, onToggleStreaming, onToggleHistory, onToggleSourc
               </svg>
               {hasHistory && <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>}
             </button>
-            {hasSources && (
-              <button onClick={onToggleSources} className="p-2 hover:bg-white/10 rounded-lg transition-colors relative">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"></span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -271,7 +263,7 @@ const QuestionForm = ({ question, onChange, onSubmit, loading, onExampleClick })
     </div>
     
     <div className="mt-4 sm:mt-5">
-      <div className="text-xs sm:text-sm font-medium text-gray-600 mb-2">💡 질문 예시 (현재 수원시만 지원!)</div>
+      <div className="text-xs sm:text-sm font-medium text-gray-600 mb-2">💡 질문 예시</div>
       <div className="flex flex-wrap gap-2">
         {EXAMPLE_QUESTIONS.map((example, index) => (
           <button
@@ -288,48 +280,70 @@ const QuestionForm = ({ question, onChange, onSubmit, loading, onExampleClick })
   </div>
 );
 
-const AnswerDisplay = ({ loading, error, answer, isStreaming }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
-    <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">AI 답변</h3>
-    
-    {loading && !answer && (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="w-12 h-12 border-4 border-[#e8eef5] border-t-[#0c3470] rounded-full animate-spin mb-4"></div>
-        <p className="text-sm text-gray-500">
-          {isStreaming ? '실시간으로 답변 생성 중...' : '답변 생성 중...'}
-        </p>
-      </div>
-    )}
-
-    {error && (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-        <p className="font-semibold text-red-800 text-sm">오류가 발생했습니다</p>
-        <p className="text-xs mt-2 text-red-600">{error}</p>
-      </div>
-    )}
-
-    {answer && (
-      <div className="space-y-4">
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 sm:p-6 border border-gray-100">
-          <div className="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">
-            <FormattedText text={answer} />
-          </div>
+const AnswerDisplay = ({ loading, error, answer, isStreaming, sources }) => (
+  <div className="space-y-4 sm:space-y-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
+      <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">AI 답변</h3>
+      
+      {loading && !answer && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-12 h-12 border-4 border-[#e8eef5] border-t-[#0c3470] rounded-full animate-spin mb-4"></div>
+          <p className="text-sm text-gray-500">
+            {isStreaming ? '실시간으로 답변 생성 중...' : '답변 생성 중...'}
+          </p>
         </div>
-        
-        {loading && (
-          <div className="flex items-center justify-center gap-3 py-3">
-            <div className="w-8 h-8 border-3 border-[#e8eef5] border-t-[#0c3470] rounded-full animate-spin"></div>
-            <p className="text-sm text-gray-500 font-medium">
-              실시간으로 답변 생성 중...
-            </p>
-          </div>
-        )}
-      </div>
-    )}
+      )}
 
-    {!loading && !answer && !error && (
-      <div className="text-center py-16 text-sm text-gray-400">
-        질문을 입력하고 검색 버튼을 눌러주세요
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <p className="font-semibold text-red-800 text-sm">오류가 발생했습니다</p>
+          <p className="text-xs mt-2 text-red-600">{error}</p>
+        </div>
+      )}
+
+      {answer && (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 sm:p-6 border border-gray-100">
+            <div className="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">
+              <FormattedText text={answer} />
+            </div>
+          </div>
+          
+          {loading && (
+            <div className="flex items-center justify-center gap-3 py-3">
+              <div className="w-8 h-8 border-3 border-[#e8eef5] border-t-[#0c3470] rounded-full animate-spin"></div>
+              <p className="text-sm text-gray-500 font-medium">
+                실시간으로 답변 생성 중...
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!loading && !answer && !error && (
+        <div className="text-center py-16 text-sm text-gray-400">
+          질문을 입력하고 검색 버튼을 눌러주세요
+        </div>
+      )}
+    </div>
+
+    {/* Mobile Sources Section */}
+    {sources.length > 0 && (
+      <div className="lg:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="w-5 h-5 text-[#0c3470]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 className="text-lg font-bold text-gray-800">출처</h3>
+        </div>
+        <p className="text-xs text-gray-600 mb-4">답변의 근거가 된 법령</p>
+        <div className="space-y-3">
+          {sources
+            .sort((a, b) => b.similarity_score - a.similarity_score)
+            .map((source, index) => (
+              <SourceItem key={index} source={source} />
+            ))}
+        </div>
       </div>
     )}
   </div>
@@ -547,6 +561,7 @@ function App() {
               error={error}
               answer={currentAnswer}
               isStreaming={isStreaming}
+              sources={currentSources}
             />
           </div>
         </div>
@@ -609,6 +624,34 @@ function App() {
         </div>
       )}
 
+      {/* Mobile Sources Drawer */}
+      {showSources && (
+        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setShowSources(false)}>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-bold">출처</h2>
+              <button onClick={() => setShowSources(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {currentSources.length === 0 ? (
+                <div className="text-center py-16 text-sm text-gray-400">
+                  검색 결과가 없습니다
+                </div>
+              ) : (
+                currentSources
+                  .sort((a, b) => b.similarity_score - a.similarity_score)
+                  .map((source, index) => (
+                    <SourceItem key={index} source={source} />
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Mobile Sources Drawer */}
       {showSources && (
         <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setShowSources(false)}>
